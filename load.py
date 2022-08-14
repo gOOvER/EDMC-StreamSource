@@ -21,20 +21,20 @@ from l10n import Locale
 VERSION = '1.10'
 
 
-class StreamSource():
+class StreamSource:
     """Hold the global data."""
 
     def __init__(self):
         # Info recorded, with initial placeholder values
         self.system: str = 'System'
         self.station: str = 'Station'
-        self.starpos: Tuple[Any, ...] = (0.0, 0.0, 0.0)
+        self.star_pos: Tuple[Any, ...] = (0.0, 0.0, 0.0)
         self.body: Optional[str] = 'Body'
         self.latlon: Optional[Tuple[Any, ...]] = (0.0, 0.0)
-        self.stationorbody: Optional[str] = 'Station or Body'
-        self.stationorbodyorsystem: str = 'Station or Body or System'
-        self.shiptype: str = 'Ship type'
-        self.shipname: str = 'Ship name'
+        self.station_or_body: Optional[str] = 'Station or Body'
+        self.station_or_body_or_system: str = 'Station or Body or System'
+        self.ship_type: str = 'Ship type'
+        self.ship_name: str = 'Ship name'
 
         self.outdir = config.get_str('outdir')
 
@@ -47,9 +47,9 @@ def write_all() -> None:
     write_file('EDMC System.txt', stream_source.system)
     write_file(
         'EDMC StarPos.txt',
-        f'{Locale.string_from_number(stream_source.starpos[0], 5)} '
-        f'{Locale.string_from_number(stream_source.starpos[1], 5)} '
-        f'{Locale.string_from_number(stream_source.starpos[2], 5)}'
+        f'{Locale.string_from_number(stream_source.star_pos[0], 5)} '
+        f'{Locale.string_from_number(stream_source.star_pos[1], 5)} '
+        f'{Locale.string_from_number(stream_source.star_pos[2], 5)}'
     )
     write_file('EDMC Station.txt', stream_source.station)
     write_file('EDMC Body.txt', stream_source.body)
@@ -58,10 +58,10 @@ def write_all() -> None:
         f'{Locale.string_from_number(stream_source.latlon[0], 6)} '  # type: ignore # because Optional
         f'{Locale.string_from_number(stream_source.latlon[1], 6)}'  # type: ignore # because Optional
     )
-    write_file('EDMC Station or Body.txt', stream_source.stationorbody)
-    write_file('EDMC Station or Body or System.txt', stream_source.stationorbodyorsystem)
-    write_file('EDMC ShipType.txt', stream_source.shiptype)
-    write_file('EDMC ShipName.txt', stream_source.shipname)
+    write_file('EDMC Station or Body.txt', stream_source.station_or_body)
+    write_file('EDMC Station or Body or System.txt', stream_source.station_or_body_or_system)
+    write_file('EDMC ShipType.txt', stream_source.ship_type)
+    write_file('EDMC ShipName.txt', stream_source.ship_name)
 
     return None
 
@@ -115,13 +115,13 @@ def journal_entry(  # noqa: CCR001
         stream_source.system = system
         write_file('EDMC System.txt', stream_source.system)
 
-    if 'StarPos' in entry and stream_source.starpos != tuple(entry['StarPos']):
-        stream_source.starpos = tuple(entry['StarPos'])
+    if 'StarPos' in entry and stream_source.star_pos != tuple(entry['StarPos']):
+        stream_source.star_pos = tuple(entry['StarPos'])
         write_file(
             'EDMC StarPos.txt',
-            f'{Locale.string_from_number(stream_source.starpos[0], 5)} '
-            f'{Locale.string_from_number(stream_source.starpos[1], 5)} '
-            f'{Locale.string_from_number(stream_source.starpos[2], 5)}'
+            f'{Locale.string_from_number(stream_source.star_pos[0], 5)} '
+            f'{Locale.string_from_number(stream_source.star_pos[1], 5)} '
+            f'{Locale.string_from_number(stream_source.star_pos[2], 5)}'
         )
 
     if stream_source.station != station:
@@ -146,23 +146,23 @@ def journal_entry(  # noqa: CCR001
         stream_source.body = None
         write_file('EDMC Body.txt')
 
-    if stream_source.stationorbody != (stream_source.station or stream_source.body):
-        stream_source.stationorbody = (stream_source.station or stream_source.body)
-        write_file('EDMC Station or Body.txt', stream_source.stationorbody)
+    if stream_source.station_or_body != (stream_source.station or stream_source.body):
+        stream_source.station_or_body = (stream_source.station or stream_source.body)
+        write_file('EDMC Station or Body.txt', stream_source.station_or_body)
 
-    if stream_source.stationorbodyorsystem != (stream_source.station or stream_source.body or stream_source.system):
-        stream_source.stationorbodyorsystem = (stream_source.station or stream_source.body or stream_source.system)
-        write_file('EDMC Station or Body or System.txt', stream_source.stationorbodyorsystem)
+    if stream_source.station_or_body_or_system != (stream_source.station or stream_source.body or stream_source.system):
+        stream_source.station_or_body_or_system = (stream_source.station or stream_source.body or stream_source.system)
+        write_file('EDMC Station or Body or System.txt', stream_source.station_or_body_or_system)
 
-    if stream_source.shiptype != state['ShipType']:
-        stream_source.shiptype = state['ShipType']
-        write_file('EDMC ShipType.txt', ship_map.get(stream_source.shiptype, stream_source.shiptype))
+    if stream_source.ship_type != state['ShipType']:
+        stream_source.ship_type = state['ShipType']
+        write_file('EDMC ShipType.txt', ship_map.get(stream_source.ship_type, stream_source.ship_type))
 
-    if stream_source.shipname != (state['ShipName'] or stream_source.shiptype):
-        stream_source.shipname = (state['ShipName'] or stream_source.shiptype)
+    if stream_source.ship_name != (state['ShipName'] or stream_source.ship_type):
+        stream_source.ship_name = (state['ShipName'] or stream_source.ship_type)
         write_file(
             'EDMC ShipName.txt',
-            state['ShipName'] and state['ShipName'] or ship_map.get(stream_source.shiptype, stream_source.shiptype)
+            state['ShipName'] and state['ShipName'] or ship_map.get(stream_source.ship_type, stream_source.ship_type)
         )
 
     return None
