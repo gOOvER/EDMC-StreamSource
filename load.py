@@ -11,7 +11,7 @@ from os.path import join
 import sys
 
 from config import config
-from companion import ship_map
+from edmc_data import coriolis_ship_map as ship_map
 from l10n import Locale
 
 VERSION = '1.10'
