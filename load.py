@@ -16,43 +16,58 @@ from l10n import Locale
 
 VERSION = '1.10'
 
-this = sys.modules[__name__]	# For holding module globals
-this.outdir = config.get_str('outdir')
+class StreamSource():
+    """Hold the global data."""
 
-# Info recorded, with initial placeholder values
-this.system = 'System'
-this.station = 'Station'
-this.starpos = (0,0,0)
-this.body = 'Body'
-this.latlon = (0,0)
-this.stationorbody = 'Station or Body'
-this.stationorbodyorsystem = 'Station or Body or System'
-this.shiptype = 'Ship type'
-this.shipname = 'Ship name'
+    def __init__(self):
+        # Info recorded, with initial placeholder values
+        self.system: str = 'System'
+        self.station: str = 'Station'
+        self.starpos: List[float, float, float] = (0.0, 0.0, 0.0)
+        self.body: str = 'Body'
+        self.latlon: List[float, float] = (0.0, 0.0)
+        self.stationorbody: str = 'Station or Body'
+        self.stationorbodyorsystem: str = 'Station or Body or System'
+        self.shiptype: str = 'Ship type'
+        self.shipname: str = 'Ship name'
+
+        self.outdir = config.get_str('outdir')
+
+
+stream_source = StreamSource()
+stream_source.system = 'System'
+stream_source.station = 'Station'
+stream_source.starpos = (0,0,0)
+stream_source.body = 'Body'
+stream_source.latlon = (0,0)
+stream_source.stationorbody = 'Station or Body'
+stream_source.stationorbodyorsystem = 'Station or Body or System'
+stream_source.shiptype = 'Ship type'
+stream_source.shipname = 'Ship name'
 
 
 # write out all files
 def write_all():
-    write_file('EDMC System.txt', this.system)
+    write_file('EDMC System.txt', stream_source.system)
     write_file('EDMC StarPos.txt', '%s %s %s' % (
-        Locale.string_from_number(this.starpos[0], 5),
-        Locale.string_from_number(this.starpos[1], 5),
-        Locale.string_from_number(this.starpos[2], 5)))
-    write_file('EDMC Station.txt', this.station)
-    write_file('EDMC Body.txt', this.body)
+        Locale.string_from_number(stream_source.starpos[0], 5),
+        Locale.string_from_number(stream_source.starpos[1], 5),
+        Locale.string_from_number(stream_source.starpos[2], 5)))
+    write_file('EDMC Station.txt', stream_source.station)
+    write_file('EDMC Body.txt', stream_source.body)
     write_file('EDMC LatLon.txt', '%s %s' % (
-        Locale.string_from_number(this.latlon[0], 6),
-        Locale.string_from_number(this.latlon[1], 6)))
-    write_file('EDMC Station or Body.txt', this.stationorbody)
-    write_file('EDMC Station or Body or System.txt', this.stationorbodyorsystem)
-    write_file('EDMC ShipType.txt', this.shiptype)
-    write_file('EDMC ShipName.txt', this.shipname)
+        Locale.string_from_number(stream_source.latlon[0], 6),
+        Locale.string_from_number(stream_source.latlon[1], 6)))
+    write_file('EDMC Station or Body.txt', stream_source.stationorbody)
+    write_file('EDMC Station or Body or System.txt', stream_source.stationorbodyorsystem)
+    write_file('EDMC ShipType.txt', stream_source.shiptype)
+    write_file('EDMC ShipName.txt', stream_source.shipname)
 
 
 # write one file
 def write_file(name, text=None):
     # File needs to be closed for the streaming software to notice its been updated.
-    with open(join(this.outdir, name), 'w', encoding='utf-8') as h:
+    with open(join(stream_source.outdir, name), 'w', encoding='utf-8') as h:
         h.write(u'%s\n' % (text or u''))
         h.close()
 
@@ -68,66 +83,66 @@ def plugin_start():
 
 # Write all files in new location if output directory changed
 def prefs_changed(cmdr, is_beta):
-    if this.outdir != config.get('outdir'):
-        this.outdir = config.get('outdir')
+    if stream_source.outdir != config.get('outdir'):
+        stream_source.outdir = config.get('outdir')
         write_all()
 
 
 # Write any files with changed data
 def journal_entry(cmdr, is_beta, system, station, entry, state):
 
-    if this.system != system:
-        this.system = system
-        write_file('EDMC System.txt', this.system)
+    if stream_source.system != system:
+        stream_source.system = system
+        write_file('EDMC System.txt', stream_source.system)
 
-    if 'StarPos' in entry and this.starpos != tuple(entry['StarPos']):
-        this.starpos = tuple(entry['StarPos'])
+    if 'StarPos' in entry and stream_source.starpos != tuple(entry['StarPos']):
+        stream_source.starpos = tuple(entry['StarPos'])
         write_file('EDMC StarPos.txt', '%s %s %s' % (
-            Locale.string_from_number(this.starpos[0], 5),
-            Locale.string_from_number(this.starpos[1], 5),
-            Locale.string_from_number(this.starpos[2], 5)))
+            Locale.string_from_number(stream_source.starpos[0], 5),
+            Locale.string_from_number(stream_source.starpos[1], 5),
+            Locale.string_from_number(stream_source.starpos[2], 5)))
 
-    if this.station != station:
-        this.station = station
-        write_file('EDMC Station.txt', this.station)
+    if stream_source.station != station:
+        stream_source.station = station
+        write_file('EDMC Station.txt', stream_source.station)
 
     if entry['event'] in ['FSDJump', 'LeaveBody', 'Location', 'SupercruiseEntry', 'SupercruiseExit'] and entry.get('BodyType') in [None, 'Station']:
-        if this.body:
-            this.body = None
+        if stream_source.body:
+            stream_source.body = None
             write_file('EDMC Body.txt')
     elif 'Body' in entry:	# StartUp, ApproachBody, Location, SupercruiseExit
-        if this.body != entry['Body']:
-            this.body = entry['Body']
-            write_file('EDMC Body.txt', this.body)
+        if stream_source.body != entry['Body']:
+            stream_source.body = entry['Body']
+            write_file('EDMC Body.txt', stream_source.body)
     elif entry['event'] == 'StartUp':
-        this.body = None
+        stream_source.body = None
         write_file('EDMC Body.txt')
 
-    if this.stationorbody != (this.station or this.body):
-        this.stationorbody = (this.station or this.body)
-        write_file('EDMC Station or Body.txt', this.stationorbody)
+    if stream_source.stationorbody != (stream_source.station or stream_source.body):
+        stream_source.stationorbody = (stream_source.station or stream_source.body)
+        write_file('EDMC Station or Body.txt', stream_source.stationorbody)
 
-    if this.stationorbodyorsystem != (this.station or this.body or this.system):
-        this.stationorbodyorsystem = (this.station or this.body or this.system)
-        write_file('EDMC Station or Body or System.txt', this.stationorbodyorsystem)
+    if stream_source.stationorbodyorsystem != (stream_source.station or stream_source.body or stream_source.system):
+        stream_source.stationorbodyorsystem = (stream_source.station or stream_source.body or stream_source.system)
+        write_file('EDMC Station or Body or System.txt', stream_source.stationorbodyorsystem)
 
-    if this.shiptype != state['ShipType']:
-        this.shiptype = state['ShipType']
-        write_file('EDMC ShipType.txt', ship_map.get(this.shiptype, this.shiptype))
+    if stream_source.shiptype != state['ShipType']:
+        stream_source.shiptype = state['ShipType']
+        write_file('EDMC ShipType.txt', ship_map.get(stream_source.shiptype, stream_source.shiptype))
 
-    if this.shipname != (state['ShipName'] or this.shiptype):
-        this.shipname = (state['ShipName'] or this.shiptype)
-        write_file('EDMC ShipName.txt', state['ShipName'] and state['ShipName'] or ship_map.get(this.shiptype, this.shiptype))
+    if stream_source.shipname != (state['ShipName'] or stream_source.shiptype):
+        stream_source.shipname = (state['ShipName'] or stream_source.shiptype)
+        write_file('EDMC ShipName.txt', state['ShipName'] and state['ShipName'] or ship_map.get(stream_source.shiptype, stream_source.shiptype))
 
 
 # Write any files with changed data
 def dashboard_entry(cmdr, is_beta, entry):
     if 'Latitude' in entry and 'Longitude' in entry:
-        if this.latlon != (entry['Latitude'], entry['Longitude']):
-            this.latlon = (entry['Latitude'], entry['Longitude'])
+        if stream_source.latlon != (entry['Latitude'], entry['Longitude']):
+            stream_source.latlon = (entry['Latitude'], entry['Longitude'])
             write_file('EDMC LatLon.txt', '%s %s' % (
-                Locale.string_from_number(this.latlon[0], 6),
-                Locale.string_from_number(this.latlon[1], 6)))
-    elif this.latlon:
-        this.latlon = None
+                Locale.string_from_number(stream_source.latlon[0], 6),
+                Locale.string_from_number(stream_source.latlon[1], 6)))
+    elif stream_source.latlon:
+        stream_source.latlon = None
         write_file('EDMC LatLon.txt')
