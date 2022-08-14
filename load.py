@@ -12,7 +12,7 @@ Examples of such are Open Broadcaster Software, GameShow, XSplit, etc.
 # For Python 2&3 a version of open that supports both encoding and universal newlines
 from io import open
 from os.path import join
-from typing import Any, List, Mapping, MutableMapping, Optional
+from typing import Any, Mapping, MutableMapping, Optional, Tuple
 
 from config import config
 from edmc_data import coriolis_ship_map as ship_map
@@ -28,10 +28,10 @@ class StreamSource():
         # Info recorded, with initial placeholder values
         self.system: str = 'System'
         self.station: str = 'Station'
-        self.starpos: List[float, float, float] = (0.0, 0.0, 0.0)
-        self.body: str = 'Body'
-        self.latlon: List[float, float] = (0.0, 0.0)
-        self.stationorbody: str = 'Station or Body'
+        self.starpos: Tuple[Any, ...] = tuple(0.0, 0.0, 0.0)
+        self.body: Optional[str] = 'Body'
+        self.latlon: Optional[Tuple[Any, ...]] = tuple(0.0, 0.0)
+        self.stationorbody: Optional[str] = 'Station or Body'
         self.stationorbodyorsystem: str = 'Station or Body or System'
         self.shiptype: str = 'Ship type'
         self.shipname: str = 'Ship name'
@@ -42,7 +42,7 @@ class StreamSource():
 stream_source = StreamSource()
 
 
-def write_all():
+def write_all() -> None:
     """Write all data out to respective files."""
     write_file('EDMC System.txt', stream_source.system)
     write_file(
@@ -55,13 +55,15 @@ def write_all():
     write_file('EDMC Body.txt', stream_source.body)
     write_file(
         'EDMC LatLon.txt',
-        f'{Locale.string_from_number(stream_source.latlon[0], 6)} '
-        f'{Locale.string_from_number(stream_source.latlon[1], 6)}'
+        f'{Locale.string_from_number(stream_source.latlon[0], 6)} '  # type: ignore
+        f'{Locale.string_from_number(stream_source.latlon[1], 6)}'  # type: ignore
     )
     write_file('EDMC Station or Body.txt', stream_source.stationorbody)
     write_file('EDMC Station or Body or System.txt', stream_source.stationorbodyorsystem)
     write_file('EDMC ShipType.txt', stream_source.shiptype)
     write_file('EDMC ShipName.txt', stream_source.shipname)
+
+    return None
 
 
 def write_file(name: str, text: str = None) -> None:
@@ -162,6 +164,8 @@ def journal_entry(  # noqa: CCR001
             'EDMC ShipName.txt',
             state['ShipName'] and state['ShipName'] or ship_map.get(stream_source.shiptype, stream_source.shiptype)
         )
+
+    return None
 
 
 def dashboard_entry(
