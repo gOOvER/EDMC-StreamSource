@@ -12,12 +12,14 @@ Examples of such are Open Broadcaster Software, GameShow, XSplit, etc.
 # For Python 2&3 a version of open that supports both encoding and universal newlines
 from io import open
 from os.path import join
+from typing import List
 
 from config import config
 from edmc_data import coriolis_ship_map as ship_map
 from l10n import Locale
 
 VERSION = '1.10'
+
 
 class StreamSource():
     """Hold the global data."""
@@ -38,16 +40,6 @@ class StreamSource():
 
 
 stream_source = StreamSource()
-stream_source.system = 'System'
-stream_source.station = 'Station'
-stream_source.starpos = (0,0,0)
-stream_source.body = 'Body'
-stream_source.latlon = (0,0)
-stream_source.stationorbody = 'Station or Body'
-stream_source.stationorbodyorsystem = 'Station or Body or System'
-stream_source.shiptype = 'Ship type'
-stream_source.shipname = 'Ship name'
-
 
 # write out all files
 def write_all():
