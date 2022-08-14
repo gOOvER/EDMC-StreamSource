@@ -64,12 +64,14 @@ def write_all():
     write_file('EDMC ShipName.txt', stream_source.shipname)
 
 
-# write one file
-def write_file(name, text=None):
+def write_file(name: str, text: str = None) -> None:
+    """Write one file's text."""
     # File needs to be closed for the streaming software to notice its been updated.
     with open(join(stream_source.outdir, name), 'w', encoding='utf-8') as h:
-        h.write(u'%s\n' % (text or u''))
+        h.write(f'{text or ""}\n')
         h.close()
+
+    return None
 
 
 # Write placeholder values for positioning
