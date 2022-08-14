@@ -12,7 +12,7 @@ Examples of such are Open Broadcaster Software, GameShow, XSplit, etc.
 # For Python 2&3 a version of open that supports both encoding and universal newlines
 from io import open
 from os.path import join
-from typing import List
+from typing import Any, List, Mapping, MutableMapping, Optional
 
 from config import config
 from edmc_data import coriolis_ship_map as ship_map
@@ -90,32 +90,56 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
         write_all()
 
 
-# Write any files with changed data
-def journal_entry(cmdr, is_beta, system, station, entry, state):
+def journal_entry(  # noqa: CCR001
+        cmdr: str,
+        is_beta: bool,
+        system: str,
+        station: str,
+        entry: MutableMapping[str, Any],
+        state: Mapping[str, Any]
+) -> Optional[str]:
+    """
+    Process a journal event.
 
+    :param cmdr:
+    :param system:
+    :param station:
+    :param entry:
+    :param state:
+    :return:
+    """
+    # Write any files with changed data
     if stream_source.system != system:
         stream_source.system = system
         write_file('EDMC System.txt', stream_source.system)
 
     if 'StarPos' in entry and stream_source.starpos != tuple(entry['StarPos']):
         stream_source.starpos = tuple(entry['StarPos'])
-        write_file('EDMC StarPos.txt', '%s %s %s' % (
-            Locale.string_from_number(stream_source.starpos[0], 5),
-            Locale.string_from_number(stream_source.starpos[1], 5),
-            Locale.string_from_number(stream_source.starpos[2], 5)))
+        write_file(
+            'EDMC StarPos.txt',
+            f'{Locale.string_from_number(stream_source.starpos[0], 5)} '
+            f'{Locale.string_from_number(stream_source.starpos[1], 5)} '
+            f'{Locale.string_from_number(stream_source.starpos[2], 5)}'
+        )
 
     if stream_source.station != station:
         stream_source.station = station
         write_file('EDMC Station.txt', stream_source.station)
 
-    if entry['event'] in ['FSDJump', 'LeaveBody', 'Location', 'SupercruiseEntry', 'SupercruiseExit'] and entry.get('BodyType') in [None, 'Station']:
+    if (
+        entry['event'] in ['FSDJump', 'LeaveBody', 'Location', 'SupercruiseEntry', 'SupercruiseExit']
+            and entry.get('BodyType') in [None, 'Station']
+    ):
         if stream_source.body:
             stream_source.body = None
             write_file('EDMC Body.txt')
-    elif 'Body' in entry:	# StartUp, ApproachBody, Location, SupercruiseExit
+
+    elif 'Body' in entry:
+        # StartUp, ApproachBody, Location, SupercruiseExit
         if stream_source.body != entry['Body']:
             stream_source.body = entry['Body']
             write_file('EDMC Body.txt', stream_source.body)
+
     elif entry['event'] == 'StartUp':
         stream_source.body = None
         write_file('EDMC Body.txt')
@@ -134,7 +158,10 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
 
     if stream_source.shipname != (state['ShipName'] or stream_source.shiptype):
         stream_source.shipname = (state['ShipName'] or stream_source.shiptype)
-        write_file('EDMC ShipName.txt', state['ShipName'] and state['ShipName'] or ship_map.get(stream_source.shiptype, stream_source.shiptype))
+        write_file(
+            'EDMC ShipName.txt',
+            state['ShipName'] and state['ShipName'] or ship_map.get(stream_source.shiptype, stream_source.shiptype)
+        )
 
 
 # Write any files with changed data
