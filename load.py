@@ -41,18 +41,23 @@ class StreamSource():
 
 stream_source = StreamSource()
 
-# write out all files
+
 def write_all():
+    """Write all data out to respective files."""
     write_file('EDMC System.txt', stream_source.system)
-    write_file('EDMC StarPos.txt', '%s %s %s' % (
-        Locale.string_from_number(stream_source.starpos[0], 5),
-        Locale.string_from_number(stream_source.starpos[1], 5),
-        Locale.string_from_number(stream_source.starpos[2], 5)))
+    write_file(
+        'EDMC StarPos.txt',
+        f'{Locale.string_from_number(stream_source.starpos[0], 5)} '
+        f'{Locale.string_from_number(stream_source.starpos[1], 5)} '
+        f'{Locale.string_from_number(stream_source.starpos[2], 5)}'
+    )
     write_file('EDMC Station.txt', stream_source.station)
     write_file('EDMC Body.txt', stream_source.body)
-    write_file('EDMC LatLon.txt', '%s %s' % (
-        Locale.string_from_number(stream_source.latlon[0], 6),
-        Locale.string_from_number(stream_source.latlon[1], 6)))
+    write_file(
+        'EDMC LatLon.txt',
+        f'{Locale.string_from_number(stream_source.latlon[0], 6)} '
+        f'{Locale.string_from_number(stream_source.latlon[1], 6)}'
+    )
     write_file('EDMC Station or Body.txt', stream_source.stationorbody)
     write_file('EDMC Station or Body or System.txt', stream_source.stationorbodyorsystem)
     write_file('EDMC ShipType.txt', stream_source.shiptype)
