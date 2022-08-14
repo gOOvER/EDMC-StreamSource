@@ -74,9 +74,12 @@ def write_file(name: str, text: str = None) -> None:
     return None
 
 
-# Write placeholder values for positioning
-def plugin_start3(plugin_dir):
+def plugin_start3(plugin_dir: str) -> str:
+    """Handle start-up of plugin."""
+    # Write placeholder values for positioning
     write_all()
+
+    return 'EDMC-StreamSource'
 
 # Write placeholder values for positioning
 def plugin_start():
