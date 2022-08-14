@@ -17,7 +17,7 @@ from l10n import Locale
 VERSION = '1.10'
 
 this = sys.modules[__name__]	# For holding module globals
-this.outdir = config.get('outdir')
+this.outdir = config.get_str('outdir')
 
 # Info recorded, with initial placeholder values
 this.system = 'System'
