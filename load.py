@@ -35,14 +35,14 @@ this.shipname = 'Ship name'
 def write_all():
     write_file('EDMC System.txt', this.system)
     write_file('EDMC StarPos.txt', '%s %s %s' % (
-        Locale.stringFromNumber(this.starpos[0], 5),
-        Locale.stringFromNumber(this.starpos[1], 5),
-        Locale.stringFromNumber(this.starpos[2], 5)))
+        Locale.string_from_number(this.starpos[0], 5),
+        Locale.string_from_number(this.starpos[1], 5),
+        Locale.string_from_number(this.starpos[2], 5)))
     write_file('EDMC Station.txt', this.station)
     write_file('EDMC Body.txt', this.body)
     write_file('EDMC LatLon.txt', '%s %s' % (
-        Locale.stringFromNumber(this.latlon[0], 6),
-        Locale.stringFromNumber(this.latlon[1], 6)))
+        Locale.string_from_number(this.latlon[0], 6),
+        Locale.string_from_number(this.latlon[1], 6)))
     write_file('EDMC Station or Body.txt', this.stationorbody)
     write_file('EDMC Station or Body or System.txt', this.stationorbodyorsystem)
     write_file('EDMC ShipType.txt', this.shiptype)
@@ -83,9 +83,9 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
     if 'StarPos' in entry and this.starpos != tuple(entry['StarPos']):
         this.starpos = tuple(entry['StarPos'])
         write_file('EDMC StarPos.txt', '%s %s %s' % (
-            Locale.stringFromNumber(this.starpos[0], 5),
-            Locale.stringFromNumber(this.starpos[1], 5),
-            Locale.stringFromNumber(this.starpos[2], 5)))
+            Locale.string_from_number(this.starpos[0], 5),
+            Locale.string_from_number(this.starpos[1], 5),
+            Locale.string_from_number(this.starpos[2], 5)))
 
     if this.station != station:
         this.station = station
@@ -126,8 +126,8 @@ def dashboard_entry(cmdr, is_beta, entry):
         if this.latlon != (entry['Latitude'], entry['Longitude']):
             this.latlon = (entry['Latitude'], entry['Longitude'])
             write_file('EDMC LatLon.txt', '%s %s' % (
-                Locale.stringFromNumber(this.latlon[0], 6),
-                Locale.stringFromNumber(this.latlon[1], 6)))
+                Locale.string_from_number(this.latlon[0], 6),
+                Locale.string_from_number(this.latlon[1], 6)))
     elif this.latlon:
         this.latlon = None
         write_file('EDMC LatLon.txt')
