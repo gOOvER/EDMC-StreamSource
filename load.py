@@ -81,10 +81,6 @@ def plugin_start3(plugin_dir: str) -> str:
 
     return 'EDMC-StreamSource'
 
-# Write placeholder values for positioning
-def plugin_start():
-    write_all()
-
 
 # Write all files in new location if output directory changed
 def prefs_changed(cmdr, is_beta):
