@@ -28,9 +28,9 @@ class StreamSource():
         # Info recorded, with initial placeholder values
         self.system: str = 'System'
         self.station: str = 'Station'
-        self.starpos: Tuple[Any, ...] = tuple(0.0, 0.0, 0.0)
+        self.starpos: Tuple[Any, ...] = (0.0, 0.0, 0.0)
         self.body: Optional[str] = 'Body'
-        self.latlon: Optional[Tuple[Any, ...]] = tuple(0.0, 0.0)
+        self.latlon: Optional[Tuple[Any, ...]] = (0.0, 0.0)
         self.stationorbody: Optional[str] = 'Station or Body'
         self.stationorbodyorsystem: str = 'Station or Body or System'
         self.shiptype: str = 'Ship type'
@@ -55,8 +55,8 @@ def write_all() -> None:
     write_file('EDMC Body.txt', stream_source.body)
     write_file(
         'EDMC LatLon.txt',
-        f'{Locale.string_from_number(stream_source.latlon[0], 6)} '  # type: ignore
-        f'{Locale.string_from_number(stream_source.latlon[1], 6)}'  # type: ignore
+        f'{Locale.string_from_number(stream_source.latlon[0], 6)} '  # type: ignore # because Optional
+        f'{Locale.string_from_number(stream_source.latlon[1], 6)}'  # type: ignore # because Optional
     )
     write_file('EDMC Station or Body.txt', stream_source.stationorbody)
     write_file('EDMC Station or Body or System.txt', stream_source.stationorbodyorsystem)
