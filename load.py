@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
-#
-# Output status info to text files for use with streaming software such as Open Broadcaster Software, GameShow, XSplit, etc.
-# https://obsproject.com/wiki/Sources-Guide#text-gdi
-# https://telestream.force.com/kb2/articles/Knowledge_Article/Gameshow-Add-Text
-# https://www.xsplit.com/broadcaster/getting-started/adding-text
-#
+"""
+Output status info to text files for use with streaming software.
+
+Examples of such are Open Broadcaster Software, GameShow, XSplit, etc.
+
+* https://obsproject.com/wiki/Sources-Guide#text-gdi
+* https://telestream.force.com/kb2/articles/Knowledge_Article/Gameshow-Add-Text
+* https://www.xsplit.com/broadcaster/getting-started/adding-text
+"""
 
 # For Python 2&3 a version of open that supports both encoding and universal newlines
 from io import open
