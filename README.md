@@ -10,14 +10,21 @@ streaming software such as
 
 ## Installation
 
+NB: If you previously used the Marginal version of this with older EDMC, then
+just remove that version and entirely, replacing it with this one.
+
 * On EDMC's Plugins settings tab press the “Open” button. This reveals the
   `plugins` folder where EDMC looks for plugins.
 * Download the
   [latest release](https://github.com/Athanasius/EDMC-StreamSource/releases/latest).
-* Open the `.zip` archive that you downloaded and move the `EDMC-StreamSource`
-  folder contained inside into the `plugins` folder.
+* Open the `.zip` archive that you downloaded.  At its top level will be a
+  folder named like `EDMC-StreamSource-Release-<version>`.
+  1. Copy this into the EDMC `plugins` folder.
+  2. Remove, or rename, any existing `EDMC-StreamSource` folder.
+  3. Rename this new version's folder to `EDMC-StreamSource`.
 
-You will need to re-start EDMC for it to notice and load the new plugin.
+You will need to re-start EDMC for it to notice and load the new/updated 
+plugin.
 
 ## Output
 
