@@ -164,14 +164,24 @@ def journal_entry(  # noqa: CCR001
         )
 
 
-# Write any files with changed data
-def dashboard_entry(cmdr, is_beta, entry):
+def dashboard_entry(
+        cmdr: str,
+        is_beta: bool,
+        entry: MutableMapping
+) -> Optional[str]:
+    """Handle new Status.json data."""
+    # Write any files with changed data
     if 'Latitude' in entry and 'Longitude' in entry:
         if stream_source.latlon != (entry['Latitude'], entry['Longitude']):
             stream_source.latlon = (entry['Latitude'], entry['Longitude'])
-            write_file('EDMC LatLon.txt', '%s %s' % (
-                Locale.string_from_number(stream_source.latlon[0], 6),
-                Locale.string_from_number(stream_source.latlon[1], 6)))
+            write_file(
+                'EDMC LatLon.txt',
+                f'{Locale.string_from_number(stream_source.latlon[0], 6)} '
+                f'{Locale.string_from_number(stream_source.latlon[1], 6)}'
+            )
+
     elif stream_source.latlon:
         stream_source.latlon = None
         write_file('EDMC LatLon.txt')
+
+    return None
