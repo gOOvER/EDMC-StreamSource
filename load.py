@@ -6,9 +6,9 @@
 # https://www.xsplit.com/broadcaster/getting-started/adding-text
 #
 
-from io import open	# For Python 2&3 a version of open that supports both encoding and universal newlines
+# For Python 2&3 a version of open that supports both encoding and universal newlines
+from io import open
 from os.path import join
-import sys
 
 from config import config
 from edmc_data import coriolis_ship_map as ship_map
