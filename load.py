@@ -82,8 +82,9 @@ def plugin_start3(plugin_dir: str) -> str:
     return 'EDMC-StreamSource'
 
 
-# Write all files in new location if output directory changed
-def prefs_changed(cmdr, is_beta):
+def prefs_changed(cmdr: str, is_beta: bool) -> None:
+    """Handle any changes to application preferences."""
+    # Write all files in new location if output directory changed.
     if stream_source.outdir != config.get('outdir'):
         stream_source.outdir = config.get('outdir')
         write_all()
