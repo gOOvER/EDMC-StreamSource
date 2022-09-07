@@ -87,8 +87,8 @@ def plugin_start3(plugin_dir: str) -> str:
 def prefs_changed(cmdr: str, is_beta: bool) -> None:
     """Handle any changes to application preferences."""
     # Write all files in new location if output directory changed.
-    if stream_source.outdir != config.get('outdir'):
-        stream_source.outdir = config.get('outdir')
+    if stream_source.outdir != config.get_str('outdir'):
+        stream_source.outdir = config.get_str('outdir')
         write_all()
 
 
