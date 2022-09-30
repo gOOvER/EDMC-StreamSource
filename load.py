@@ -115,7 +115,7 @@ def journal_entry(  # noqa: CCR001
         stream_source.system = system
         write_file('EDMC System.txt', stream_source.system)
 
-    if 'StarPos' in entry and stream_source.star_pos != tuple(entry['StarPos']):
+    if entry.get('StarPos') is not None and stream_source.star_pos != tuple(entry['StarPos']):
         stream_source.star_pos = tuple(entry['StarPos'])
         write_file(
             'EDMC StarPos.txt',
