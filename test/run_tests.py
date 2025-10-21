@@ -5,6 +5,7 @@ Test runner for EDMC-StreamSource plugin.
 This script runs all available tests and provides a comprehensive summary.
 """
 
+import os
 import sys
 import time
 import importlib.util
@@ -20,6 +21,10 @@ paths_to_add = [str(project_root), str(test_dir), str(current_dir)]
 for path in paths_to_add:
     if path not in sys.path:
         sys.path.insert(0, path)
+
+# Ensure we're in the test directory for imports
+if Path.cwd() != test_dir:
+    os.chdir(test_dir)
 
 
 def _import_test_module(module_name):
@@ -45,30 +50,80 @@ def _import_test_module(module_name):
         print(f"    Trying to load from file: {test_file}")
         print(f"    File exists: {test_file.exists()}")
 
-        if test_file.exists():
+        # Try multiple fallback strategies
+        errors = [str(e1)]
+
+        # Try each strategy in order
+        strategies = [
+            ("importlib.util", _try_importlib_util),
+            ("sys.path retry", _try_syspath_retry),
+            ("working directory", _try_cwd_change),
+            ("direct exec", _try_direct_exec)
+        ]
+
+        for strategy_name, strategy_func in strategies:
             try:
-                spec = importlib.util.spec_from_file_location(module_name, test_file)
-                test_module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(test_module)
-                print("    Successfully loaded via importlib.util")
-                return test_module
-            except Exception as e2:
-                print(f"    importlib.util failed: {e2}")
-                raise ImportError(f"Could not import {module_name}: {e1}, {e2}")
-        else:
-            # Last resort: try to add the test directory to sys.path and retry
-            test_dir_str = str(Path(__file__).parent)
-            if test_dir_str not in sys.path:
-                sys.path.insert(0, test_dir_str)
-                print(f"    Added {test_dir_str} to sys.path, retrying...")
-                try:
-                    test_module = __import__(module_name)
-                    print("    Success after adding to sys.path")
-                    return test_module
-                except ImportError as e3:
-                    raise ImportError(f"All import methods failed: {e1}, {e3}")
-            else:
-                raise ImportError(f"Could not find or import {module_name}: {e1}")
+                result = strategy_func(module_name, test_file)
+                if result:
+                    print(f"    Success with {strategy_name}")
+                    return result
+            except Exception as e:
+                print(f"    {strategy_name} failed: {e}")
+                errors.append(f"{strategy_name}: {e}")
+
+        # All strategies failed
+        raise ImportError(f"All import methods failed for {module_name}: {'; '.join(errors)}")
+
+
+def _try_importlib_util(module_name, test_file):
+    """Try importing using importlib.util."""
+    if not test_file.exists():
+        raise ImportError("File not found")
+
+    spec = importlib.util.spec_from_file_location(module_name, test_file)
+    test_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(test_module)
+    return test_module
+
+
+def _try_syspath_retry(module_name, test_file):
+    """Try adding test directory to sys.path and retry import."""
+    test_dir_str = str(Path(__file__).parent)
+    if test_dir_str not in sys.path:
+        sys.path.insert(0, test_dir_str)
+        print(f"    Added {test_dir_str} to sys.path")
+    return __import__(module_name)
+
+
+def _try_cwd_change(module_name, test_file):
+    """Try changing working directory and importing."""
+    original_cwd = Path.cwd()
+    try:
+        os.chdir(Path(__file__).parent)
+        return __import__(module_name)
+    finally:
+        os.chdir(original_cwd)
+
+
+def _try_direct_exec(module_name, test_file):
+    """Try direct exec() as last resort."""
+    if not test_file.exists():
+        raise ImportError("File not found")
+
+    module_globals = {}
+    with open(test_file, 'r', encoding='utf-8') as f:
+        exec(f.read(), module_globals)
+
+    # Create a simple module-like object
+    class MockModule:
+        pass
+
+    test_module = MockModule()
+    for name, value in module_globals.items():
+        if not name.startswith('__'):
+            setattr(test_module, name, value)
+
+    return test_module
 
 
 def run_test_module(module_name, test_description):
