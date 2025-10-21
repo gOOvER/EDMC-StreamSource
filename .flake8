@@ -1,6 +1,6 @@
 [flake8]
 # Show exactly where in a line the error happened
-#show-source = True
+show-source = True
 
 max-line-length = 120
 # Add _ as a builtin for localisation stuff
@@ -9,7 +9,11 @@ builtins = _
 # check syntax in doctests
 doctests = True 
 max-complexity = 15
-# per-file-ignores = ./EDMC.py:E402
+
+# Ignore E402 for EDMC plugins (imports after module docstring is convention)
+per-file-ignores = 
+    load.py:E402
+    test_plugin.py:E402
 
 # Plugin configs
 # required plugins:

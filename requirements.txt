@@ -1,0 +1,8 @@
+# EDMC-StreamSource Plugin Dependencies
+# This plugin is designed to work with EDMC and uses its built-in dependencies
+# No additional external dependencies required for core functionality
+
+# Development dependencies (optional)
+# flake8>=6.0.0
+# mypy>=1.0.0
+# pre-commit>=3.0.0

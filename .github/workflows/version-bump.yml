@@ -1,0 +1,193 @@
+name: Version Bump
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Type of version bump'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      custom_version:
+        description: 'Custom version (overrides bump_type)'
+        required: false
+        type: string
+
+jobs:
+  bump-version:
+    name: Bump Version
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Get current version
+      id: current_version
+      run: |
+        CURRENT_VERSION=$(grep "VERSION = " load.py | sed "s/VERSION = ['\"]\\([^'\"]*\\)['\"].*/\\1/")
+        echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+        echo "Current version: $CURRENT_VERSION"
+    
+    - name: Calculate new version
+      id: new_version
+      run: |
+        CURRENT="${{ steps.current_version.outputs.CURRENT_VERSION }}"
+        
+        if [ -n "${{ github.event.inputs.custom_version }}" ]; then
+          NEW_VERSION="${{ github.event.inputs.custom_version }}"
+          echo "Using custom version: $NEW_VERSION"
+        else
+          BUMP_TYPE="${{ github.event.inputs.bump_type }}"
+          
+          # Split version into parts
+          IFS='.' read -ra VERSION_PARTS <<< "$CURRENT"
+          MAJOR=${VERSION_PARTS[0]}
+          MINOR=${VERSION_PARTS[1]:-0}
+          PATCH=${VERSION_PARTS[2]:-0}
+          
+          case $BUMP_TYPE in
+            "major")
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            "minor")
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            "patch")
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+          
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "Bumped $BUMP_TYPE version: $CURRENT -> $NEW_VERSION"
+        fi
+        
+        echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT
+    
+    - name: Update version in load.py
+      run: |
+        NEW_VERSION="${{ steps.new_version.outputs.NEW_VERSION }}"
+        sed -i "s/VERSION = '[^']*'/VERSION = '$NEW_VERSION'/g" load.py
+        echo "Updated version to $NEW_VERSION in load.py"
+    
+    - name: Update CHANGELOG.md
+      run: |
+        NEW_VERSION="${{ steps.new_version.outputs.NEW_VERSION }}"
+        TODAY=$(date +%Y-%m-%d)
+        
+        if [ -f "CHANGELOG.md" ]; then
+          # Create new changelog entry
+          TEMP_FILE=$(mktemp)
+          
+          # Add new version section after the header
+          head -n 7 CHANGELOG.md > "$TEMP_FILE"
+          
+          cat >> "$TEMP_FILE" << EOF
+        
+        ## [$NEW_VERSION] - $TODAY
+        
+        ### Added
+        
+        - New features and improvements
+        
+        ### Changed
+        
+        - Updates and modifications
+        
+        ### Fixed
+        
+        - Bug fixes and corrections
+        
+        EOF
+          
+          # Add rest of changelog
+          tail -n +8 CHANGELOG.md >> "$TEMP_FILE"
+          
+          # Replace original file
+          mv "$TEMP_FILE" CHANGELOG.md
+          
+          echo "Updated CHANGELOG.md with new version $NEW_VERSION"
+        else
+          echo "CHANGELOG.md not found, skipping changelog update"
+        fi
+    
+    - name: Configure Git
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+    
+    - name: Commit version bump
+      run: |
+        NEW_VERSION="${{ steps.new_version.outputs.NEW_VERSION }}"
+        
+        git add load.py
+        if [ -f "CHANGELOG.md" ]; then
+          git add CHANGELOG.md
+        fi
+        
+        git commit -m "Bump version to $NEW_VERSION
+        
+        - Updated VERSION in load.py to $NEW_VERSION
+        - Added changelog section for $NEW_VERSION
+        
+        [skip ci]"
+        
+        echo "Created commit for version $NEW_VERSION"
+    
+    - name: Create and push tag
+      run: |
+        NEW_VERSION="${{ steps.new_version.outputs.NEW_VERSION }}"
+        TAG_NAME="v$NEW_VERSION"
+        
+        git tag -a "$TAG_NAME" -m "Release $TAG_NAME
+        
+        Version $NEW_VERSION of EDMC-StreamSource plugin.
+        
+        This release includes improvements to performance, reliability, and code quality.
+        
+        See CHANGELOG.md for detailed changes."
+        
+        git push origin main
+        git push origin "$TAG_NAME"
+        
+        echo "Created and pushed tag: $TAG_NAME"
+    
+    - name: Create summary
+      run: |
+        NEW_VERSION="${{ steps.new_version.outputs.NEW_VERSION }}"
+        CURRENT_VERSION="${{ steps.current_version.outputs.CURRENT_VERSION }}"
+        
+        cat >> $GITHUB_STEP_SUMMARY << EOF
+        # Version Bump Completed! 🎉
+        
+        ## Version Information
+        - **Previous Version**: $CURRENT_VERSION
+        - **New Version**: $NEW_VERSION
+        - **Bump Type**: ${{ github.event.inputs.bump_type }}
+        
+        ## Changes Made
+        - ✅ Updated \`load.py\` with new version
+        - ✅ Updated \`CHANGELOG.md\` with new section
+        - ✅ Created git commit with changes
+        - ✅ Created and pushed git tag \`v$NEW_VERSION\`
+        
+        ## Next Steps
+        The new tag will automatically trigger the release workflow to create a GitHub release with the packaged plugin.
+        
+        You can monitor the release creation at: [Actions](https://github.com/${{ github.repository }}/actions)
+        EOF

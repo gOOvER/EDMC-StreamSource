@@ -1,5 +1,66 @@
+# OS-specific files
 .DS_Store
-*.bak
+Thumbs.db
+
+# Python
 *.pyc
 *.pyo
+*.pyd
+__pycache__/
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Backup files
+*.bak
+*.orig
+*.tmp
+*~
+
+# Archives
 *.zip
+*.tar.gz
+*.rar
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Testing
+.pytest_cache/
+.tox/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Generated files
+EDMC*.txt
+
+# Test files and directories
+test_output/
+test_*.py
+!test_plugin.py
+!test_performance.py

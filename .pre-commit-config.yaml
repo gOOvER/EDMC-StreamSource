@@ -1,19 +1,17 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
-# This can be used to check how pre-commit is being run
-# - repo: meta
-#   hooks:
-#   - id: identity
-
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 'v4.1.0'
+    rev: 'v4.6.0'  # Updated to latest version
     hooks:
       - id: check-merge-conflict 
       - id: debug-statements 
       - id: end-of-file-fixer 
       - id: mixed-line-ending
       - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: trailing-whitespace
 
         #-   repo: https://github.com/pre-commit/mirrors-autopep8
         #    rev: ''
@@ -36,17 +34,15 @@ repos:
       types: [ python ]
 
 -   repo: https://github.com/pre-commit/pygrep-hooks
-    rev: 'v1.9.0'
+    rev: 'v1.10.0'  # Updated to latest version
     hooks:
       - id: python-no-eval 
       - id: python-no-log-warn 
-# This is a pain where a comment begins with the word 'type' otherwise
-#      - id: python-use-type-annotations 
+      - id: python-check-blanket-noqa
 
 # mypy - static type checking
-# mypy --follow-imports skip <file>
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v0.931'
+    rev: 'v1.11.0'  # Updated to latest version
     hooks:
       - id: mypy
         # verbose: true
@@ -55,7 +51,7 @@ repos:
         # args: [ "--follow-imports", "skip", "--ignore-missing-imports", "--scripts-are-modules" ]
 
 default_language_version:
-    python: python3.10
+    python: python3.11
 
 default_stages: [ commit, push ]
 
