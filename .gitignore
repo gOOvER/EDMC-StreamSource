@@ -64,3 +64,4 @@ test_output/
 test_*.py
 !test_plugin.py
 !test_performance.py
+!test_functional.py
