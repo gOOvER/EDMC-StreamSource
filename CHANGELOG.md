@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Improved error handling with logging support
-- Automatic output directory creation  
+- Automatic output directory creation
 - Better type hints and documentation
 - Enhanced code structure with helper functions
 

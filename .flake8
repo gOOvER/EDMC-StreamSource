@@ -7,11 +7,11 @@ max-line-length = 120
 builtins = _
 
 # check syntax in doctests
-doctests = True 
-max-complexity = 15
+doctests = True
+max-complexity = 10
 
 # Ignore E402 for EDMC plugins (imports after module docstring is convention)
-per-file-ignores = 
+per-file-ignores =
     load.py:E402
     test_plugin.py:E402
 

@@ -62,7 +62,7 @@ python test_performance.py
 The test suite uses comprehensive mocks to simulate EDMC environment:
 
 - **MockConfig**: Simulates EDMC configuration system
-- **MockLocale**: Provides number formatting functionality  
+- **MockLocale**: Provides number formatting functionality
 - **Mock Ship Map**: Contains Elite Dangerous ship name mappings
 - **Mock Modules**: Replaces `config`, `edmc_data`, and `l10n` imports
 
@@ -151,7 +151,7 @@ logging.basicConfig(level=logging.DEBUG)
 The test suite integrates with development workflows:
 
 - **Pre-commit**: Run `python test_runner.py lint` before commits
-- **Release Preparation**: Run `python run_tests.py` before releases  
+- **Release Preparation**: Run `python run_tests.py` before releases
 - **Performance Monitoring**: Use performance tests to detect regressions
 - **Code Quality**: Tests enforce type safety and error handling
 

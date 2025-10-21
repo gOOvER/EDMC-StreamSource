@@ -20,37 +20,37 @@ jobs:
   create-release:
     name: Create Release Package
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
         fetch-depth: 0  # Fetch full history for changelog generation
-    
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install flake8 mypy
-    
+
     - name: Run code quality checks
       run: |
         # Lint the code
         flake8 load.py
-        
+
         # Type check
         mypy load.py --ignore-missing-imports
-        
+
         # Run test suite if available
         if [ -d "test" ]; then
           cd test
           python run_tests.py
         fi
-    
+
     - name: Extract version from tag or input
       id: version
       run: |
@@ -63,81 +63,81 @@ jobs:
         fi
         echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
         echo "Release version: $VERSION"
-    
+
     - name: Update version in load.py
       run: |
         VERSION="${{ steps.version.outputs.VERSION }}"
         sed -i "s/VERSION = '[^']*'/VERSION = '$VERSION'/g" load.py
         echo "Updated version to $VERSION"
-    
+
     - name: Generate changelog section
       id: changelog
       run: |
         VERSION="${{ steps.version.outputs.VERSION }}"
-        
+
         # Extract changelog section for this version
         if [ -f "CHANGELOG.md" ]; then
           # Try to extract the section for this version
           CHANGELOG_SECTION=$(awk "/^## \[$VERSION\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md | head -50)
-          
+
           if [ -z "$CHANGELOG_SECTION" ]; then
             CHANGELOG_SECTION="### Changes in v$VERSION
-        
+
         - Updated EDMC-StreamSource plugin
         - Improved performance and reliability
         - Enhanced error handling and logging
-        
+
         For detailed changes, see the [full changelog](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)."
           fi
         else
           CHANGELOG_SECTION="### Changes in v$VERSION
-        
+
         - Updated EDMC-StreamSource plugin
         - Improved performance and reliability
-        
+
         For detailed changes, see the commit history."
         fi
-        
+
         # Save changelog to file (GitHub Actions doesn't handle multiline outputs well)
         echo "$CHANGELOG_SECTION" > changelog_section.md
         echo "Generated changelog section for version $VERSION"
-    
+
     - name: Create release package
       run: |
         VERSION="${{ steps.version.outputs.VERSION }}"
         PACKAGE_NAME="EDMC-StreamSource-Release-$VERSION"
-        
+
         # Create release directory
         mkdir -p "dist/$PACKAGE_NAME"
-        
+
         # Copy plugin files
         cp load.py "dist/$PACKAGE_NAME/"
         cp README.md "dist/$PACKAGE_NAME/"
         cp LICENSE "dist/$PACKAGE_NAME/"
-        
+
         # Copy changelog if it exists
         if [ -f "CHANGELOG.md" ]; then
           cp CHANGELOG.md "dist/$PACKAGE_NAME/"
         fi
-        
+
         # Create installation instructions
         cat > "dist/$PACKAGE_NAME/INSTALL.txt" << EOF
         EDMC-StreamSource Plugin Installation Instructions
         ================================================
-        
+
         Version: $VERSION
-        
+
         Installation:
         1. Extract this folder to your EDMC plugins directory
         2. Rename the folder to 'EDMC-StreamSource' (remove the version suffix)
         3. Restart EDMC
         4. Configure your output directory in EDMC settings
-        
+
         The plugin will create text files for streaming software like OBS Studio.
-        
+
         For more information, see README.md
         EOF
-        
+
         # Create version info file
         cat > "dist/$PACKAGE_NAME/VERSION.txt" << EOF
         EDMC-StreamSource Plugin
@@ -145,14 +145,14 @@ jobs:
         Build Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
         Git Commit: ${{ github.sha }}
         EOF
-        
+
         # Create zip archive
         cd dist
         zip -r "$PACKAGE_NAME.zip" "$PACKAGE_NAME/"
-        
+
         echo "Created release package: $PACKAGE_NAME.zip"
         ls -la "$PACKAGE_NAME.zip"
-    
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
@@ -165,7 +165,7 @@ jobs:
         draft: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
+
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:

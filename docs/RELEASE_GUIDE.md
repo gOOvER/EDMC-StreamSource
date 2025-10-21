@@ -15,7 +15,7 @@ This document describes how to create releases for the EDMC-StreamSource plugin.
    - Click "Run workflow"
    - Select bump type:
      - `patch`: Bug fixes (1.11 → 1.12)
-     - `minor`: New features (1.11 → 1.20)  
+     - `minor`: New features (1.11 → 1.20)
      - `major`: Breaking changes (1.11 → 2.0)
    - Or enter custom version
    - Click "Run workflow"
@@ -155,7 +155,7 @@ We follow [Semantic Versioning](https://semver.org/):
 Before creating a release:
 
 - [ ] All tests pass
-- [ ] Code quality checks pass  
+- [ ] Code quality checks pass
 - [ ] CHANGELOG.md is updated
 - [ ] Version number is correct in load.py
 - [ ] README.md reflects current features
