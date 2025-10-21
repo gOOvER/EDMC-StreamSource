@@ -1,5 +1,3 @@
-** Athanasius retired from all things relating to Elite Dangerous.  Someone else should really fork this and take over maintaining it. **
-
 # Live streaming software plugin for [ED Market Connector](https://github.com/EDCD/EDMarketConnector/wiki)
 
 This plugin outputs status info from the game
