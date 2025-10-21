@@ -47,6 +47,7 @@ jobs:
 
         # Run test suite if available
         if [ -d "test" ]; then
+          export PYTHONPATH="${PYTHONPATH}:$(pwd):$(pwd)/test"
           cd test
           python run_tests.py
         fi

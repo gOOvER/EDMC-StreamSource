@@ -7,13 +7,68 @@ This script runs all available tests and provides a comprehensive summary.
 
 import sys
 import time
+import importlib.util
 from pathlib import Path
 
 # Add project root and test directory to path
 project_root = Path(__file__).parent.parent
 test_dir = Path(__file__).parent
-sys.path.insert(0, str(project_root))
-sys.path.insert(0, str(test_dir))
+current_dir = Path.cwd()
+
+# Ensure all necessary paths are in sys.path
+paths_to_add = [str(project_root), str(test_dir), str(current_dir)]
+for path in paths_to_add:
+    if path not in sys.path:
+        sys.path.insert(0, path)
+
+
+def _import_test_module(module_name):
+    """
+    Import a test module with fallback strategies.
+
+    Args:
+        module_name: Name of the module to import
+
+    Returns:
+        The imported module
+
+    Raises:
+        ImportError: If all import methods fail
+    """
+    try:
+        return __import__(module_name)
+    except ImportError as e1:
+        print(f"    Initial import failed: {e1}")
+        # Try alternative import methods
+        # Try to find the module file
+        test_file = Path(__file__).parent / f"{module_name}.py"
+        print(f"    Trying to load from file: {test_file}")
+        print(f"    File exists: {test_file.exists()}")
+
+        if test_file.exists():
+            try:
+                spec = importlib.util.spec_from_file_location(module_name, test_file)
+                test_module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(test_module)
+                print("    Successfully loaded via importlib.util")
+                return test_module
+            except Exception as e2:
+                print(f"    importlib.util failed: {e2}")
+                raise ImportError(f"Could not import {module_name}: {e1}, {e2}")
+        else:
+            # Last resort: try to add the test directory to sys.path and retry
+            test_dir_str = str(Path(__file__).parent)
+            if test_dir_str not in sys.path:
+                sys.path.insert(0, test_dir_str)
+                print(f"    Added {test_dir_str} to sys.path, retrying...")
+                try:
+                    test_module = __import__(module_name)
+                    print("    Success after adding to sys.path")
+                    return test_module
+                except ImportError as e3:
+                    raise ImportError(f"All import methods failed: {e1}, {e3}")
+            else:
+                raise ImportError(f"Could not find or import {module_name}: {e1}")
 
 
 def run_test_module(module_name, test_description):
@@ -34,8 +89,8 @@ def run_test_module(module_name, test_description):
 
         start_time = time.time()
 
-        # Import and run the test module
-        test_module = __import__(module_name)
+        # Import the test module using our helper function
+        test_module = _import_test_module(module_name)
 
         if hasattr(test_module, 'run_all_tests'):
             # Module has a unified test runner
@@ -68,6 +123,18 @@ def run_test_module(module_name, test_description):
 def main():
     """Main test runner function."""
     print("🧪 EDMC-StreamSource Test Suite")
+    print("=" * 60)
+
+    # Debug information
+    print("Debug Info:")
+    print(f"  Current working directory: {Path.cwd()}")
+    print(f"  Script directory: {Path(__file__).parent}")
+    print(f"  Project root: {Path(__file__).parent.parent}")
+    print(f"  Python path entries: {len(sys.path)}")
+    for i, path in enumerate(sys.path[:5]):  # Show first 5 entries
+        print(f"    [{i}] {path}")
+    if len(sys.path) > 5:
+        print(f"    ... and {len(sys.path) - 5} more entries")
     print("=" * 60)
 
     # Define available tests

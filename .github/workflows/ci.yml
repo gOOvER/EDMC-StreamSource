@@ -59,6 +59,8 @@ jobs:
 
     - name: Run test suite
       run: |
+        # Set PYTHONPATH to include current directory and test directory
+        export PYTHONPATH="${PYTHONPATH}:$(pwd):$(pwd)/test"
         cd test
         python run_tests.py
 
